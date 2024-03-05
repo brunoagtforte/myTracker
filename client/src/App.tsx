@@ -1,12 +1,10 @@
-import { useState } from 'react'
+import { showAllTrades } from './views/showAllTrades'
 import './App.css'
 
-function App() {
+export function App() {
   return (
     <>
       <h1>myTracker</h1>
     </>
   )
 }
-
-export default App

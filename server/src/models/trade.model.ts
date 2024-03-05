@@ -1,13 +1,6 @@
-import { model, Schema, Document } from 'mongoose'
+import { model, Schema } from 'mongoose'
+import { IStock } from '../../../shared/interfaces/interfaces';
 
-interface ITrade extends Document {
-  ticker: string;
-  date: Date;
-  buySell: 'buy' | 'sell';
-  shares: number;
-  price: number;
-  tactical?: string;
-}
 
 const tradeSchema = new Schema(
   {
@@ -46,6 +39,6 @@ const tradeSchema = new Schema(
   }
 );
 
-const Trade = model<ITrade>("Trade", tradeSchema);
+const Trade = model<IStock>("Trade", tradeSchema);
 
-export { Trade as default, ITrade };
+export { Trade as default, IStock };

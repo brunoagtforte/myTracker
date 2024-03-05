@@ -1,9 +1,11 @@
 import { Response, Request } from 'express'
-import Trade, { ITrade } from "../models/trade.model";
+import Trade from "../models/trade.model";
+import { IStock } from '../../../shared/interfaces/interfaces';
+
 
 const createTrade = async (req: Request, res: Response) => {
   try {
-    const newTrade: ITrade = await Trade.create(req.body);
+    const newTrade: IStock = await Trade.create(req.body);
     res.status(201).json(newTrade);
     res.json(newTrade);
   } catch (error) {
@@ -14,7 +16,7 @@ const createTrade = async (req: Request, res: Response) => {
 
 const getAllTrades = async (req: Request, res: Response) => {
   try {
-    const allTrades: ITrade[] = await Trade.find();
+    const allTrades: IStock[] = await Trade.find();
     res.json(allTrades)
   } catch (error) {
     console.log(error);
@@ -24,7 +26,7 @@ const getAllTrades = async (req: Request, res: Response) => {
 
 const getOneTrade = async (req: Request, res: Response) => {
   try {
-    const trade: ITrade | null = await Trade.findById(req.params.id);
+    const trade: IStock | null = await Trade.findById(req.params.id);
     if (!trade) {
       res.status(404).json({ error: "Trade not found" });
       return;
@@ -42,7 +44,7 @@ const updateTrade = async (req: Request, res: Response) => {
     runValidators: true
   }
   try {
-    const updatedTrade: ITrade | null = await Trade.findByIdAndUpdate(req.params.id, req.body, options)
+    const updatedTrade: IStock | null = await Trade.findByIdAndUpdate(req.params.id, req.body, options)
     if (!updatedTrade) {
       res.status(404).json({ error: "Trade not found" });
       return;
@@ -56,7 +58,7 @@ const updateTrade = async (req: Request, res: Response) => {
 
 const deleteTrade = async (req: Request, res: Response) => {
   try {
-    const deletedTrade: ITrade | null = await Trade.findByIdAndDelete(req.params.id);
+    const deletedTrade: IStock | null = await Trade.findByIdAndDelete(req.params.id);
     if (!deletedTrade) {
       res.status(404).json({ error: "Trade not found" });
       return;

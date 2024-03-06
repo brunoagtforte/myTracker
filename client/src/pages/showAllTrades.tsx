@@ -2,8 +2,7 @@ import { useState, useEffect } from "react";
 import axios from "axios";
 import { IStock } from '../../../shared/interfaces/interfaces';
 
-
-export const showAllTrades = () => {
+const showAllTrades = () => {
   const [trades, setTrades] = useState<IStock[]>([]);
 
   useEffect(() => {
@@ -24,3 +23,5 @@ export const showAllTrades = () => {
     </div>
   )
 }
+
+export default showAllTrades

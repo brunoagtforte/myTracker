@@ -1,27 +1,25 @@
-import { useState, useEffect } from "react";
-import axios from "axios";
-import { IStock } from '../../../shared/interfaces/interfaces';
+import { useState, useEffect } from 'react'
+import axios from 'axios'
 
 const showAllTrades = () => {
-  const [trades, setTrades] = useState<IStock[]>([]);
+    const [trades, setTrades] = useState<ITransaction[]>([])
 
-  useEffect(() => {
-    axios.get("http://localhost:8000/api/trades").then((res) => {
-      console.log(res.data)
-      setTrades(res.data)
-    })
-  }, [])
+    useEffect(() => {
+        axios.get('http://localhost:8000/api/trades').then((res) => {
+            console.log(res.data)
+            setTrades(res.data)
+        })
+    }, [])
 
-  return (
-    <div>
-      {trades.map((trade: IStock) => (
+    return (
         <div>
-          <p>{trade.ticker}</p>
+            {trades.map((trade: ITransaction) => (
+                <div key={trade._id} id='teste'>
+                    <p>{trade.ticker}</p>
+                </div>
+            ))}
         </div>
-      ))
-      }
-    </div>
-  )
+    )
 }
 
 export default showAllTrades

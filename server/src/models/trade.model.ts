@@ -1,8 +1,7 @@
 import { model, Schema } from 'mongoose'
-import { IStock } from '../../../shared/interfaces/interfaces';
+import { ITransaction } from '../types/ITransaction';
 
-
-const tradeSchema = new Schema(
+const tradeSchema = new Schema<ITransaction>(
   {
     ticker: {
       type: String,
@@ -12,11 +11,12 @@ const tradeSchema = new Schema(
     },
     date: {
       type: Date,
-      required: [true]
+      default: new Date(),
+      required: true
     },
-    buySell: {
+    transaction: {
       type: String,
-      required: [true],
+      required: true,
       enum: ["buy", "sell"]
     },
     shares: {
@@ -28,10 +28,9 @@ const tradeSchema = new Schema(
       type: Number,
       required: [true, "Price required"]
     },
-    tactical: {
-      type: String,
-      required: [false],
-      maxlength: [50, "cannot be longer than 50 characters"]
+    taxes: {
+      type: Number,
+      required: false
     }
   },
   {
@@ -39,6 +38,6 @@ const tradeSchema = new Schema(
   }
 );
 
-const Trade = model<IStock>("Trade", tradeSchema);
+const Trade = model<ITransaction>("Trade", tradeSchema);
 
-export { Trade as default, IStock };
+export default Trade

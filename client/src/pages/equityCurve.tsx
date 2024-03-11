@@ -1,10 +1,5 @@
-
 const EquityCurve = () => {
-
-
-  return (<div></div>
-
-  )
+    return <div></div>
 }
 
 export default EquityCurve

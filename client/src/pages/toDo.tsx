@@ -1,10 +1,5 @@
-
 const ToDo = () => {
-
-
-  return (<div></div>
-
-  )
+    return <div></div>
 }
 
 export default ToDo

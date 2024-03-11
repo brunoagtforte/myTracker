@@ -1,9 +1,4 @@
-
 const CurrentPortfolio = () => {
-
-
-  return (<div></div>
-
-  )
+    return <div></div>
 }
 export default CurrentPortfolio

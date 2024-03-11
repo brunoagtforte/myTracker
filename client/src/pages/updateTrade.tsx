@@ -1,10 +1,5 @@
-
 const UpdateTrade = () => {
-
-
-  return (<div></div>
-
-  )
+    return <div></div>
 }
 
 export default UpdateTrade

@@ -1,30 +1,29 @@
 interface IResponseTransaction {
-    _id: string
+    _id?: string
     date: date
     transaction: 'buy' | 'sell'
     ticker: string
-    tickerName: string
     shares: number
-    price: number
+    stockPrice: number
     taxes: number
     createdAt?: string
     updatedAt?: string
 }
 
 interface ITransaction {
-    _id: string
+    _id?: string
     date: date
     transaction: 'buy' | 'sell'
     ticker: string
     tickerName: string
     shares: number
-    price: string
+    stockPrice: string
     taxes: string
     logo: string
     totalCost: string
 }
 
-interface DefaultTableProps {
+interface DataTableProps {
     columns: Column[]
     data: ITransaction[]
 }
@@ -32,4 +31,14 @@ interface DefaultTableProps {
 interface Column {
     key: string
     label: string
+}
+
+interface DatePickerData {
+    startDate: Date | null
+    endDate: Date | null
+}
+
+interface TransactionFormProps {
+    onClose: () => void
+    title: string
 }

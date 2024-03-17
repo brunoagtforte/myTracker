@@ -1,3 +1,4 @@
+import React, { FC, useState, useMemo, useCallback } from 'react'
 import {
     Table,
     TableHeader,
@@ -5,27 +6,27 @@ import {
     TableBody,
     TableRow,
     TableCell,
-    getKeyValue,
     Pagination,
     SortDescriptor,
     Input,
-    Button,
+    getKeyValue,
 } from '@nextui-org/react'
+import AddTransactionModal from '../transactions/TransactionModal/TransactionModal'
 import { renderCell } from '../transactions/columns'
-import { useCallback, useMemo, useState } from 'react'
-import { MagnifyingGlassIcon, PlusIcon } from '@heroicons/react/24/solid'
+import { MagnifyingGlassIcon } from '@heroicons/react/24/solid'
 
-const DataTable: React.FC<DefaultTableProps> = ({ columns, data }) => {
+const DataTable: FC<DataTableProps> = ({ columns, data }) => {
     const [sortDescriptor, setSortDescriptor] = useState<SortDescriptor>({
         column: 'date',
         direction: 'descending',
     })
-    const [filterValue, setFilterValue] = useState('')
-    const hasSearchFilter = Boolean(filterValue)
-    const [page, setPage] = useState(1)
-    const [rowsPerPage, setRowsPerPage] = useState(5)
 
-    //filter data
+    const [filterValue, setFilterValue] = useState<string>('')
+    const [page, setPage] = useState<number>(1)
+    const [rowsPerPage, setRowsPerPage] = useState<number>(5)
+
+    const hasSearchFilter = Boolean(filterValue)
+
     const filteredData = useMemo(() => {
         let filteredData = [...data]
 
@@ -37,7 +38,14 @@ const DataTable: React.FC<DefaultTableProps> = ({ columns, data }) => {
         return filteredData
     }, [data, filterValue, hasSearchFilter])
 
-    //orderBy
+    const formatDate = (date: Date): string => {
+        return new Date(date).toLocaleDateString('en-GB', {
+            year: 'numeric',
+            month: '2-digit',
+            day: '2-digit',
+        })
+    }
+
     const sortedItems = useMemo(() => {
         const { column, direction } = sortDescriptor
         const sortedItems = [...filteredData]
@@ -81,7 +89,7 @@ const DataTable: React.FC<DefaultTableProps> = ({ columns, data }) => {
                     return compareStrings(valueA, valueB)
                 case 'date':
                     return compareDates(valueA, valueB)
-                case 'price':
+                case 'stockPrice':
                 case 'taxes':
                 case 'totalCost':
                 case 'shares':
@@ -94,7 +102,6 @@ const DataTable: React.FC<DefaultTableProps> = ({ columns, data }) => {
         return sortedItems
     }, [filteredData, sortDescriptor])
 
-    //pagination
     const pages = Math.ceil(filteredData.length / rowsPerPage)
 
     const items = useMemo(() => {
@@ -129,40 +136,37 @@ const DataTable: React.FC<DefaultTableProps> = ({ columns, data }) => {
     const topContent = useMemo(() => {
         return (
             <div className='flex flex-col gap-4'>
-                <div className='flex items-end justify-between gap-3'>
-                    <Input
-                        isClearable
-                        className='w-full sm:max-w-[44%]'
-                        placeholder='Search by ticker...'
-                        startContent={
-                            <MagnifyingGlassIcon className='h-5 w-5 text-gray-400' />
-                        }
-                        value={filterValue}
-                        onClear={() => onClearSearch()}
-                        onValueChange={onSearchChange}
-                    />
-                    <Button
-                        color='primary'
-                        startContent={<PlusIcon className='h-5 w-5' />}
-                    >
-                        Add Transaction
-                    </Button>
-                </div>
-                <div className='flex items-center justify-between'>
-                    <span className='text-small text-default-400'>
-                        Total {items.length} Transactions
-                    </span>
-                    <label className='flex items-center text-small text-default-400'>
-                        Rows per page:
-                        <select
-                            className='bg-transparent text-small text-default-400 outline-none'
-                            onChange={onRowsPerPageChange}
-                        >
-                            <option value='5'>5</option>
-                            <option value='10'>10</option>
-                            <option value='15'>15</option>
-                        </select>
-                    </label>
+                <div className='flex flex-col gap-4'>
+                    <div className='flex items-end justify-between gap-3'>
+                        <Input
+                            isClearable
+                            className='w-full sm:max-w-[44%]'
+                            placeholder='Search by ticker...'
+                            startContent={
+                                <MagnifyingGlassIcon className='h-5 w-5 text-gray-400' />
+                            }
+                            value={filterValue}
+                            onClear={() => onClearSearch()}
+                            onValueChange={onSearchChange}
+                        />
+                        <AddTransactionModal />
+                    </div>
+                    <div className='flex items-center justify-between'>
+                        <span className='text-small text-default-400'>
+                            Total {items.length} Transactions
+                        </span>
+                        <label className='flex items-center text-small text-default-400'>
+                            Rows per page:
+                            <select
+                                className='bg-transparent text-small text-default-400 outline-none'
+                                onChange={onRowsPerPageChange}
+                            >
+                                <option value='5'>5</option>
+                                <option value='10'>10</option>
+                                <option value='15'>15</option>
+                            </select>
+                        </label>
+                    </div>
                 </div>
             </div>
         )
@@ -172,8 +176,8 @@ const DataTable: React.FC<DefaultTableProps> = ({ columns, data }) => {
         onSearchChange,
         onRowsPerPageChange,
         items.length,
-        hasSearchFilter,
     ])
+
     return (
         <Table
             aria-label='Transactions Table'
@@ -195,20 +199,25 @@ const DataTable: React.FC<DefaultTableProps> = ({ columns, data }) => {
             sortDescriptor={sortDescriptor}
             onSortChange={setSortDescriptor}
             classNames={{
-                wrapper: 'min-h-[222px]',
+                wrapper: 'min-h-[400px]',
             }}
         >
             <TableHeader columns={columns}>
                 {(column) => (
                     <TableColumn
                         className={
-                            (column.key !== 'date' ? 'text-center' : '') +
-                            (column.key !== 'date' && column.key !== 'actions'
+                            (column.key !== 'date' && column.key !== 'ticker'
+                                ? 'text-center'
+                                : '') +
+                            (column.key !== 'date' &&
+                            column.key !== 'actions' &&
+                            column.key !== 'ticker'
                                 ? ' pl-8'
                                 : '')
                         }
                         key={column.key}
                         allowsSorting={column.key !== 'actions'}
+                        width={column.key === 'ticker' ? 300 : undefined}
                     >
                         {column.label}
                     </TableColumn>
@@ -220,10 +229,15 @@ const DataTable: React.FC<DefaultTableProps> = ({ columns, data }) => {
                         {(columnKey) => (
                             <TableCell
                                 className={
-                                    columnKey !== 'date' ? 'text-center' : ''
+                                    columnKey !== 'date' &&
+                                    columnKey !== 'ticker'
+                                        ? 'text-center'
+                                        : ''
                                 }
                             >
-                                {renderCell(item, columnKey)}
+                                {columnKey === 'date'
+                                    ? formatDate(item[columnKey])
+                                    : renderCell(item, columnKey)}
                             </TableCell>
                         )}
                     </TableRow>

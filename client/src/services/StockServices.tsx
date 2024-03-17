@@ -1,53 +1,54 @@
-import axios from 'axios'
+// Constants
+const API_BASE_URL = 'http://localhost:8000/api'
+const STOCKS_API_URL = 'https://api.api-ninjas.com/v1/'
 
-const http = axios.create({
-    baseURL: 'http://localhost:8000/api',
-})
-
-const stocks = axios.create({
-    baseURL: 'https://api.polygon.io/',
-})
-
-export const getAllTransactions = async () => {
+// Functions
+const fetchJSON = async (url: string, options?: RequestInit): Promise<any> => {
     try {
-        const res = await http.get('/trades')
-        return res.data
-    } catch (err) {
-        throw err
+        const response = await fetch(url, options)
+        if (!response.ok) {
+            throw new Error(`Failed to fetch ${url}: ${response.statusText}`)
+        }
+        return await response.json()
+    } catch (error) {
+        console.error(`Error fetching ${url}:`, error)
+        throw error
     }
 }
 
-const addStock = async (stock: string) => {
-    try {
-        const res = await http.post('/trades/add', stock)
-        return res.data
-    } catch (err) {
-        throw err
-    }
+const getAllTransactions = async (): Promise<any> => {
+    return fetchJSON(`${API_BASE_URL}/trades`)
 }
 
-const deleteStock = async (id) => {
-    try {
-        const res = await http.delete('/trades/${id}')
-        return res.data
-    } catch (err) {
-        throw err
-    }
-}
-const getStockDetails = async (ticker: string) => {
-    try {
-        const api = process.env.NEXT_PUBLIC_POLYGON_API
-        const res = await stocks.get(
-            `v3/reference/tickers/${ticker}?apiKey=${api}`,
-            { headers: { Authorization: `Bearer ${api}` } }
-        )
-        return res.data
-    } catch (err) {
-        throw err
-    }
+const addStock = async (transaction: IResponseTransaction): Promise<any> => {
+    return fetchJSON(`${API_BASE_URL}/trades/add`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(transaction),
+    })
 }
 
+const deleteStock = async (id: string): Promise<any> => {
+    return fetchJSON(`${API_BASE_URL}/trades/${id}`, {
+        method: 'DELETE',
+    })
+}
+
+const getStockDetails = async (ticker: string): Promise<any> => {
+    const apiKey = process.env.NEXT_PUBLIC_POLYGON_API
+    if (!apiKey) {
+        throw new Error('Polygon API key is not available.')
+    }
+    const headers = new Headers()
+    headers.set('X-Api-Key', apiKey || '')
+    return fetchJSON(`${STOCKS_API_URL}logo?ticker=${ticker}`, { headers })
+}
+
+// Export
 export const StockService = {
+    getAllTransactions,
     addStock,
     deleteStock,
     getStockDetails,

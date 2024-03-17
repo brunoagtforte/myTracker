@@ -1,74 +1,85 @@
-import DataTable from '@/components/table/Table'
+import DataTable from '@/components/table/DataTable'
 import { columns } from '@/components/transactions/columns'
 import { useState, useEffect } from 'react'
-import { StockService } from '@/services/StockServices'
 import { useStockDetails } from '@/hooks/useStockDetails'
-import { getAllTransactions } from '@/services/StockServices'
+import { StockService } from '@/services/StockServices'
+import TransactionForm from '@/components/transactions/TransactionModal/TransactionForm'
 
 const TradeLedger = () => {
-    const [transactions, setTransaction] = useState<IResponseTransaction[]>([])
-    const stockDetails = useStockDetails(transactions)
+    const [transactions, setTransactions] = useState<IResponseTransaction[]>([])
+    const { stockDetails, loading, error } = useStockDetails(transactions)
 
-    function dateFormat(dateISO: Date) {
-        const dateObject = new Date(dateISO)
-        const newDate = dateObject.toLocaleDateString('en-GB', {
-            day: '2-digit',
-            month: 'long',
-            year: 'numeric',
-        })
-        return newDate
+    useEffect(() => {
+        const fetchTransactions = async () => {
+            try {
+                const res = await StockService.getAllTransactions()
+                setTransactions(res)
+            } catch (err) {
+                console.error('Failed to fetch transactions:', err)
+            }
+        }
+
+        fetchTransactions()
+    }, [])
+
+    const addTransaction = async (transaction: IResponseTransaction) => {
+        try {
+            const newTransaction = await StockService.addStock(transaction)
+            setTransactions((prevTransactions) => [
+                ...prevTransactions,
+                newTransaction,
+            ])
+        } catch (err) {
+            console.error('Failed to add transaction:', err)
+        }
     }
 
     const totalCost = (
-        price: number,
+        stockPrice: number,
         shares: number,
         taxes: number
     ): string => {
-        const cost = price * shares + taxes
-        const formattedNumber = new Intl.NumberFormat('en-US', {
+        const cost = stockPrice * shares + taxes
+        return new Intl.NumberFormat('en-US', {
             style: 'currency',
             currency: 'USD',
             minimumFractionDigits: 2,
             maximumFractionDigits: 2,
         }).format(cost)
-        return formattedNumber
     }
 
-    const formatPrice = (price: number): string => {
-        const formattedNumber = new Intl.NumberFormat('en-US', {
+    const formatPrice = (stockPrice: number): string => {
+        return new Intl.NumberFormat('en-US', {
             style: 'currency',
             currency: 'USD',
-        }).format(price)
-        return formattedNumber
+        }).format(stockPrice)
     }
 
-    useEffect(() => {
-        getAllTransactions()
-            .then((res) => {
-                console.log(res)
-                setTransaction(res)
-            })
-            .catch((err) => {
-                console.log(err)
-                throw err
-            })
-    }, [])
-
-    const formattedTransactions = transactions.map((trans) => {
-        return {
-            ...trans,
-            date: dateFormat(trans.date),
-            totalCost: totalCost(trans.price, trans.shares, trans.taxes),
-            logo: `https://eodhd.com/img/logos/US/${trans.ticker}.png`,
-            tickerName: stockDetails[trans.ticker]?.results.name,
-            price: formatPrice(trans.price),
-            taxes: formatPrice(trans.taxes),
+    const formatTransaction = (transaction: IResponseTransaction) => {
+        const formattedTransaction = {
+            ...transaction,
+            totalCost: totalCost(
+                transaction.stockPrice,
+                transaction.shares,
+                transaction.taxes
+            ),
+            logo: stockDetails[transaction.ticker]?.[0]?.image || '',
+            tickerName: stockDetails[transaction.ticker]?.[0]?.name || '',
+            stockPrice: formatPrice(transaction.stockPrice),
+            taxes: formatPrice(transaction.taxes),
         }
-    })
+        return formattedTransaction
+    }
+
+    const formattedTransactions = transactions.map(formatTransaction)
 
     return (
         <div>
-            <DataTable columns={columns} data={formattedTransactions} />
+            {loading && <p>Loading...</p>}
+            {error && <p>Error: {error}</p>}
+            {!loading && !error && (
+                <DataTable columns={columns} data={formattedTransactions} />
+            )}
         </div>
     )
 }

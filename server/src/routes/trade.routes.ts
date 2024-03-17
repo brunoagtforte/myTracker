@@ -1,12 +1,14 @@
-import { Router } from 'express'
-import { TradeController } from '../controllers/trade.controllers'
+import { Router } from "express";
+import TradeController from "../controllers/trade.controllers";
 
-const router = Router()
+const router = Router();
 
-router.route('/trades/add').post(TradeController.createTrade)
-router.route('/trades').get(TradeController.getAllTrades)
-router.route('/trades/:id').get(TradeController.getOneTrade)
+router.route("/trades/add").post(TradeController.createTrade);
+router.route("/trades").get(TradeController.getAllTrades);
+router
+  .route("/trades/:id")
+  .get(TradeController.getOneTrade)
   .put(TradeController.updateTrade)
-  .delete(TradeController.deleteTrade)
+  .delete(TradeController.deleteTrade);
 
-export default router
+export default router;

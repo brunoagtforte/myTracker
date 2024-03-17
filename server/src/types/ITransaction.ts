@@ -1,8 +1,8 @@
-export interface ITransaction {
-  date: Date;
-  transaction: 'buy' | 'sell';
+export interface ITransaction extends Document {
   ticker: string;
+  date: Date;
+  transaction: "buy" | "sell";
   shares: number;
-  price: number;
-  taxes: number;
+  stockPrice: number;
+  taxes?: number;
 }

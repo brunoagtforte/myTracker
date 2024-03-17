@@ -20,8 +20,8 @@ export const columns = [
         label: 'SHARES',
     },
     {
-        key: 'price',
-        label: 'PRICE',
+        key: 'stockPrice',
+        label: 'STOCK PRICE',
     },
     {
         key: 'taxes',
